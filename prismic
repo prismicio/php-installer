@@ -1,0 +1,19 @@
+#!/usr/bin/env php
+<?php
+if (file_exists(__DIR__.'/../../autoload.php')) {
+    require __DIR__.'/../../autoload.php';
+} else {
+    require __DIR__.'/vendor/autoload.php';
+}
+
+const PRISMIC_TEMPLATES = array(
+  'plain' => array(
+    'desc' => 'Plain PHP project',
+    'url' => 'https://github.com/prismicio/php-plain-starter/archive/master.zip'
+  )
+);
+
+$app = new Symfony\Component\Console\Application('Prismic Installer', '0.0.1');
+$app->add(new Prismic\Installer\Console\NewCommand);
+$app->add(new Prismic\Installer\Console\TemplatesCommand);
+$app->run();
