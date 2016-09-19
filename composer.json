@@ -1,6 +1,6 @@
 {
   "name": "prismic/installer",
-  "description": "prismic application installer.",
+  "description": "Installer for prismic.io: quickly bootstrap new projects.",
   "keywords": ["prismic"],
   "license": "Apache 2.0",
   "authors": [

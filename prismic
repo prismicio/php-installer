@@ -7,10 +7,10 @@ if (file_exists(__DIR__.'/../../autoload.php')) {
 }
 
 const PRISMIC_TEMPLATES = array(
-  'plain' => array(
-    'desc' => 'Plain PHP project',
-    'url' => 'https://github.com/prismicio/php-plain-starter/archive/master.zip',
-    'inner' => 'php-plain-starter-master'
+  'quickstart' => array(
+    'desc' => 'PHP Quickstart project',
+    'url' => 'https://github.com/prismicio/php-quickstart/archive/master.zip',
+    'inner' => 'php-quickstart-master'
   )
 );
 
