@@ -45,8 +45,10 @@ class InitCommand extends Command
             throw new RuntimeException('The Zip PHP extension is not installed. Please install it and try again.');
         }
 
+        $repo = $input->getArgument('repository');
+
         $this->verifyApplicationDoesntExist(
-            $directory = ($input->getOption('folder')) ? getcwd().'/'.$input->getOption('folder') : getcwd().'/'.$input->getArgument('repository'),
+            $directory = ($input->getOption('folder')) ? getcwd().'/'.$input->getOption('folder') : getcwd().'/'.$repo,
             $output
         );
 
@@ -56,6 +58,7 @@ class InitCommand extends Command
 
         $this->download($zipFile = $this->makeFilename(), $template)
              ->extract($zipFile, $directory, $template)
+             ->findAndReplace(glob($directory.'/*'), '/your-repo-name/', $repo)
              ->cleanUp($zipFile);
 
         $composer = $this->findComposer();
@@ -80,7 +83,7 @@ class InitCommand extends Command
             $output->write($line);
         });
 
-        $output->writeln('<comment>Application ready! Build something amazing.</comment>');
+        $output->writeln('<comment>Application ready!</comment>');
     }
 
     /**
@@ -149,6 +152,21 @@ class InitCommand extends Command
         @unlink($zipFile);
         return $this;
     }
+
+    /**
+     * Search-and-replace to inject repository name in the source
+     */
+    protected function findAndReplace($files, $source, $dest) {
+        foreach ($files as $filename)
+        {
+            if (!is_dir($filename)) {
+                $file = file_get_contents($filename);
+                file_put_contents($filename, preg_replace($source, $dest, $file));
+            }
+        }
+        return $this;
+    }
+
 
     /**
      * Get the version that should be downloaded.
