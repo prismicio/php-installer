@@ -15,7 +15,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class NewCommand extends Command
+class InitCommand extends Command
 {
     /**
      * Configure the command options.
@@ -25,7 +25,7 @@ class NewCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('new')
+            ->setName('init')
             ->setDescription('Create a new Prismic.io application.')
             ->addArgument('repository', InputArgument::REQUIRED)
             ->addOption('template', 't', InputOption::VALUE_OPTIONAL, 'Project template')
@@ -46,7 +46,7 @@ class NewCommand extends Command
         }
 
         $this->verifyApplicationDoesntExist(
-            $directory = ($input->getOption('folder')) ? getcwd().'/'.$input->getOption('folder') : getcwd(),
+            $directory = ($input->getOption('folder')) ? getcwd().'/'.$input->getOption('folder') : getcwd().'/'.$input->getArgument('repository'),
             $output
         );
 
@@ -55,16 +55,13 @@ class NewCommand extends Command
         $template = $this->getTemplate($input);
 
         $this->download($zipFile = $this->makeFilename(), $template)
-             ->extract($zipFile, $directory)
+             ->extract($zipFile, $directory, $template)
              ->cleanUp($zipFile);
 
         $composer = $this->findComposer();
 
         $commands = [
-            $composer.' install --no-scripts',
-            $composer.' run-script post-root-package-install',
-            $composer.' run-script post-install-cmd',
-            $composer.' run-script post-create-project-cmd',
+            $composer.' install --no-scripts'
         ];
 
         if ($input->getOption('no-ansi')) {
@@ -95,7 +92,7 @@ class NewCommand extends Command
     protected function verifyApplicationDoesntExist($directory, OutputInterface $output)
     {
         if ((is_dir($directory) || is_file($directory)) && $directory != getcwd()) {
-            throw new RuntimeException('Application already exists!');
+            throw new RuntimeException('Folder ' . $directory . ' already exists!');
         }
     }
 
@@ -118,7 +115,7 @@ class NewCommand extends Command
      */
     protected function download($zipFile, $template)
     {
-        $response = (new Client)->get($template->url);
+        $response = (new Client)->get($template['url']);
         file_put_contents($zipFile, $response->getBody());
         return $this;
     }
@@ -130,16 +127,13 @@ class NewCommand extends Command
      * @param  string  $directory
      * @return $this
      */
-    protected function extract($zipFile, $directory)
+    protected function extract($zipFile, $directory, $template)
     {
         $archive = new ZipArchive;
-
         $archive->open($zipFile);
-
-        $archive->extractTo($directory);
-
+        $archive->extractTo(getcwd());
         $archive->close();
-
+        rename($template['inner'], $directory);
         return $this;
     }
 
@@ -152,9 +146,7 @@ class NewCommand extends Command
     protected function cleanUp($zipFile)
     {
         @chmod($zipFile, 0777);
-
         @unlink($zipFile);
-
         return $this;
     }
 
@@ -188,7 +180,6 @@ class NewCommand extends Command
         if (file_exists(getcwd().'/composer.phar')) {
             return '"'.PHP_BINARY.'" composer.phar';
         }
-
         return 'composer';
     }
 }

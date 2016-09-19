@@ -9,11 +9,12 @@ if (file_exists(__DIR__.'/../../autoload.php')) {
 const PRISMIC_TEMPLATES = array(
   'plain' => array(
     'desc' => 'Plain PHP project',
-    'url' => 'https://github.com/prismicio/php-plain-starter/archive/master.zip'
+    'url' => 'https://github.com/prismicio/php-plain-starter/archive/master.zip',
+    'inner' => 'php-plain-starter-master'
   )
 );
 
 $app = new Symfony\Component\Console\Application('Prismic Installer', '0.0.1');
-$app->add(new Prismic\Installer\Console\NewCommand);
+$app->add(new Prismic\Installer\Console\InitCommand);
 $app->add(new Prismic\Installer\Console\TemplatesCommand);
 $app->run();
