@@ -75,6 +75,7 @@ class InitCommand extends Command
         $this->download($zipFile = $this->makeFilename(), $template)
              ->extract($zipFile, $directory, $template)
              ->findAndReplace(glob_recursive($directory.'/*'), '/your-repo-name/', $repo)
+             ->fixPerms($directory)
              ->cleanUp($zipFile);
 
         $composer = $this->findComposer();
@@ -153,6 +154,16 @@ class InitCommand extends Command
         $archive->extractTo(getcwd());
         $archive->close();
         rename($template['inner'], $directory);
+        return $this;
+    }
+
+    /**
+     *
+     * Make serve.sh executable (zip archive don't keep permissions)
+     */
+    protected function fixPerms($directory)
+    {
+        @chmod($directory . '/serve.sh', 0777);
         return $this;
     }
 
